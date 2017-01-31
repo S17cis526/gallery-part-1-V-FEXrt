@@ -65,7 +65,7 @@ var server = http.createServer((req, res) => {
       serveImage('ace.jpg', req, res);
       break;
     case '/bubble.jpg':
-      serveImage('bubble.jpg', req, res);
+      serveImage('bubble .jpg', req, res);
       break;
     case '/gallery.css':
       res.setHeader('Content-Type', 'text/css');
