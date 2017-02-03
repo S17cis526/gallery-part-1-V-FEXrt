@@ -13,6 +13,19 @@ var stylesheet = fs.readFileSync('gallery.css');
 
 var imageNames = ['ace.jpg', 'bubble.jpg', 'chess.jpg', 'fern.jpg'];
 
+function getImageNames(callback){
+  fs.readdir('images/', (err, filenames) => {
+    if(err) { callback(err, null); }
+    else { callback(null, filenames); }
+  });
+}
+
+function imageNamesToTags(filenames) {
+  return filenames.map((name) => {
+    return `<img src="${name}" alt="${name}">`
+  })
+}
+
 function serveImage(filename, req, res){
   fs.readFile('images/' + filename, (err, body) => {
     if(err){
@@ -28,53 +41,48 @@ function serveImage(filename, req, res){
   });
 }
 
+function buildGallery(imageTags){
+    var html =  '<!doctype html>';
+        html += '<head>';
+        html += ' <title>Dynamic Page</title>';
+        html += ' <link href="gallery.css" rel="stylesheet" type="text/css">';
+        html += '</head>';
+        html += '<body>';
+        html += '<h1>Gallery</h1>'
+        html += imageNamesToTags(imageTags).join('');
+        html += '</body>';
+
+    return html
+}
+
+function serveGallery(req, res) {
+  getImageNames((err, names) => {
+    if(err){
+      console.error(err);
+      res.statusCode = 404;
+      res.statusMessage = 'Image gonzo'
+      res.end();
+      return;
+    }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.end(buildGallery(names));
+  });
+}
+
 var server = http.createServer((req, res) => {
 
   switch (req.url) {
+    case '/':
     case '/gallery':
-      var gHtml = imageNames.map((name) => {
-        return '<img src="' + name + '" alt="a fishing ace at work">'
-      }).join();
-
-      var html =  '<!doctype html>';
-          html += '<head>';
-          html += ' <title>Dynamic Page</title>';
-          html += ' <link href="gallery.css" rel="stylesheet" type="text/css">';
-          html += '</head>';
-          html += '<body>';
-          html += '<h1>Gallery</h1>'
-          html += gHtml;
-          html += '</body>';
-
-      res.setHeader('Content-Type', 'text/html');
-      res.end(html);
-      break;
-    case '/chess':
-    case '/chess/':
-    case '/chess.jpg':
-    case '/chess.jpg/':
-      serveImage('chess.jpg', req, res);
-      break;
-    case '/fern':
-    case '/fern/':
-    case '/fern.jpg':
-    case '/fern.jpg/':
-      serveImage('fern.jpg', req, res);
-      break;
-    case '/ace.jpg':
-      serveImage('ace.jpg', req, res);
-      break;
-    case '/bubble.jpg':
-      serveImage('bubble .jpg', req, res);
+      serveGallery(req, res);
       break;
     case '/gallery.css':
       res.setHeader('Content-Type', 'text/css');
       res.end(stylesheet);
       break;
     default:
-      res.statusCode = 404;
-      res.statusMessage = 'File Not Found';
-      res.end();
+      serveImage(req.url, req, res);
       break;
   }
 });
