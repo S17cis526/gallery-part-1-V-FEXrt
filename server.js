@@ -9,9 +9,12 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var port = 3000;
+var template = require('./template');
 
 var stylesheet = fs.readFileSync('gallery.css');
 var config = JSON.parse(fs.readFileSync('config.json'));
+
+template.loadDir("templates");
 
 var imageNames = ['ace.jpg', 'bubble.jpg', 'chess.jpg', 'fern.jpg'];
 
@@ -20,12 +23,6 @@ function getImageNames(callback){
     if(err) { callback(err, null); }
     else { callback(null, filenames); }
   });
-}
-
-function imageNamesToTags(filenames) {
-  return filenames.map((name) => {
-    return `<img src="${name}" alt="${name}">`
-  })
 }
 
 function serveImage(filename, req, res){
@@ -44,25 +41,10 @@ function serveImage(filename, req, res){
 }
 
 function buildGallery(imageTags){
-    var html =  '<!doctype html>';
-        html += '<head>';
-        html += ' <title>' + config.title + '</title>';
-        html += ' <link href="gallery.css" rel="stylesheet" type="text/css">';
-        html += '</head>';
-        html += '<body>';
-        html += '<h1>' + config.title + '</h1>';
-        html += '<form>';
-        html += '  <input type="text" name="title">';
-        html += '  <input type="submit" value="Change Gallery Title">';
-        html += '</form>';
-        html += imageNamesToTags(imageTags).join('');
-        html += '<form method="POST" enctype="multipart/form-data">'
-        html += '  <input type="file" name="image">'
-        html += '  <input type="submit" value="Upload Image">'
-        html += '</form>'
-        html += '</body>';
-
-    return html
+   return template.render('gallery.html', {
+     title: config.title,
+     filenames: imageTags 
+   });
 }
 
 function serveGallery(req, res) {
