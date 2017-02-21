@@ -1,19 +1,24 @@
 <!doctype html>
 <html>
 <head>
-<title>' + config.title + '</title>
+  <title><%= context.title %></title>
 <link href="gallery.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-  <h1><%= context.title %></h1>
-<form>
+  <h1 id="gallery-title"><%= context.title %></h1>
+<form id="gallery-title-edit">
   <input type="text" name="title">
   <input type="submit" value="Change Gallery Title">
   </form> 
   <%= context.filenames.map(function(name){ return '<img src="' + name + '" alt="' + name + '">' }).join('')%>
-  <form method="POST" enctype="multipart/form-data">
-  <input type="file" name="image">
-  <input type="submit" value="Upload Image">
+  <form id="image-upload-form" method="POST" enctype="multipart/form-data">
+    <h2>Upload Image</h2>
+    <label for="image">
+      Image File:
+      <input type="file" name="image">
+    </label>
+    <input type="submit" value="Upload Image">
 </form>
+<script src="gallery.js"></script>
 </body>
 </html>

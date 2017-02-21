@@ -11,7 +11,8 @@ var url = require('url');
 var port = 3000;
 var template = require('./template');
 
-var stylesheet = fs.readFileSync('gallery.css');
+var stylesheet = fs.readFileSync('public/gallery.css');
+var script = fs.readFileSync('public/gallery.js');
 var config = JSON.parse(fs.readFileSync('config.json'));
 
 template.loadDir("templates");
@@ -113,7 +114,10 @@ var server = http.createServer((req, res) => {
         if(req.method == "POST"){
           uploadImage(req, res);
         }
-
+      break;
+    case '/gallery.js':
+      res.setHeader('Content-Type', 'text/javascript');
+      res.end(script);
       break;
     default:
       serveImage(urlParts.pathname, req, res);
